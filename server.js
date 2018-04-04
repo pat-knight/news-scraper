@@ -1,46 +1,67 @@
-const createError = require('http-errors');
 const express = require('express');
-const mongo = require('mongo');
-const path = require('path');
-const cookieParser = require('cookie-parser');
+const mongoose = require('mongoose');
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost/mongoHeadlines';
+const bodyParser = require('body-parser');
 const logger = require('morgan');
+const request = require('request');
+const cheerio = require('cheerio');
+const exprhbs = require('express-handlebars');
+const path = require('path');
 
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
-
-const PORT = process.env || 3000;
+const PORT = process.env.PORT || 3000;
 const app = express();
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'hbs');
+app.engine("handlebars", exprhbs({defaultLayout: "main"}));
+app.set("view engine", "handlebars");
+
+mongoose.Promise = Promise;
+mongoose.connect(MONGODB_URI, {
+  // useMongoClient: true
+});
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+const routes = require('./routes/html');
+// const htmlRouter = require('./routes/html');
+// const apiRouter = require('./routes/api');
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
-});
+// app.get('/', function(req, res) {
+//   res.render('index');
+// });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
+app.use(routes);
+// app.use('/api', apiRouter);
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
-});
+// app.get("/scrape", function(req, res) {
+//   request("https://www.theonion.com", function(error, response, html) {
+//     let $ = cheerio.load(html);
 
-module.exports = app;
+//     let results = [];
+
+//     $("h1.headline").each((i, element) => {
+
+//       let title = $(element).text();
+
+//       let link = $(element)
+//         .children()
+//         .attr("href");
+
+//       results.push({
+//         title,
+//         link
+//       });
+//     });
+//     // db.scrapedData.insertMany(results);
+//     console.log(results);
+//   });
+// });
+
 
 app.listen(PORT, function() {
   console.log("App running on port " + PORT + "!");

@@ -1,13 +1,17 @@
-var express = require('express');
-var router = express.Router();
-const app = express();
+// const express = require('express');
+const request = require('request');
+const cheerio = require('cheerio');
+const router = require('express').Router();
+const db = require('../models');
+// const app = express();
+
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+router.get('/', function(req, res) {
+  res.render('index');
 });
 
-app.get("/scrape", function(req, res) {
+router.get("/scrape", function(req, res) {
   request("https://www.theonion.com", function(error, response, html) {
     let $ = cheerio.load(html);
 
@@ -26,7 +30,7 @@ app.get("/scrape", function(req, res) {
         link
       });
     });
-    db.scrapedData.insertMany(results);
+    // db.scrapedData.insertMany(results);
     console.log(results);
   });
 });
