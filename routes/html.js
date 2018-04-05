@@ -2,7 +2,9 @@
 const request = require('request');
 const cheerio = require('cheerio');
 const router = require('express').Router();
-const db = require('../models');
+const Comment = require('../models/comment');
+const Article = require('../models/article');
+// const db = require('../models');
 // const app = express();
 
 
@@ -17,22 +19,44 @@ router.get("/scrape", function(req, res) {
 
     let results = [];
 
-    $("h1.headline").each((i, element) => {
+    $("article.postlist__item").each((i, element) => {
 
-      let title = $(element).text();
+      let title = $(element)
+      .children('header')
+      .children('h1.headline')
+      .text();
 
-      let link = $(element)
-        .children()
+      let url = $(element)
+        .find('a.js_entry-link')
         .attr("href");
+
+      let summary = $(element)
+        .find('p')
+        .text();
 
       results.push({
         title,
-        link
+        url,
+        summary
       });
     });
     // db.scrapedData.insertMany(results);
     console.log(results);
   });
 });
+
+router.get('/articles', function(req, res) {
+  Article.find().sort({_id: -1})
+  .populate('comments')
+  .exec(function(err, doc) {
+    if (err) {
+      console.log(err)
+    } else {
+      let hbsObject = {articles: doc}
+      res.render('index', hbsObject);
+    }
+    
+  })
+})
 
 module.exports = router;
