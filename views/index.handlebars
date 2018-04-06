@@ -1,2 +1,41 @@
-<h1>{{title}}</h1>
-<p>Welcome to {{title}}</p>
+<div class="container">
+    {{#each articles}}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">
+                <a href="{{url}}" class="article-link">{{ title }}</a>
+                {{!--
+                <a href="" class="btn btn-success save" style="float:right;position:relative">Save Article</a> --}}
+            </h3>
+        </div>
+        <div class="panel-body">
+            <p>{{ summary }}</p>
+
+
+        </div>
+        <div class="comment-section">
+            
+            <div class="form-group">
+                <label for="author">Name:</label>
+                <input type="text" class="form-control" id="authorText">
+            </div>
+            <div class="form-group">
+                <label for="comment">comment:</label>
+                <input type="text" class="form-control" id="commentText">
+                <span class="input-group-btn">
+        <button class="btn btn-default" type="button">Submit</button>
+      </span>
+            </div>
+            {{!-- <div class="input-group">
+      <input type="text" class="form-control" placeholder="Search for...">
+      <span class="input-group-btn">
+        <button class="btn btn-default" type="button">Go!</button>
+      </span>
+    </div><!-- /input-group --> --}}
+        </div>
+
+
+        <!-- end main panel -->
+        {{/each}}
+    </div>
+</div>

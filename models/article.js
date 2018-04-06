@@ -4,20 +4,20 @@ const Schema = mongoose.Schema;
 
 const articleSchema = new Schema({
 
-    Title: {
+    title: {
         type: String,
         required: true
     },
-    Summary: {
+    summary: {
         type: String,
         required: true
     },
-    URL: {
+    url: {
         type: String,
         required: true
     },
     
-    Comments: [{
+    comments: [{
         type: Schema.Types.ObjectId,
         ref: 'Comment'
     }]

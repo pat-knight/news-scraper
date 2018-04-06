@@ -10,49 +10,80 @@ const Article = require('../models/article');
 
 /* GET home page. */
 router.get('/', function(req, res) {
-  res.render('index');
+  res.render('layouts/main');
 });
 
 router.get("/scrape", function(req, res) {
   request("https://www.theonion.com", function(error, response, html) {
     let $ = cheerio.load(html);
 
-    let results = [];
-
+    let titles = [];
+    
     $("article.postlist__item").each((i, element) => {
+      
+      let results = {};
 
-      let title = $(element)
+      results.title = $(element)
       .children('header')
       .children('h1.headline')
       .text();
 
-      let url = $(element)
+      results.url = $(element)
         .find('a.js_entry-link')
         .attr("href");
 
-      let summary = $(element)
+      results.summary = $(element)
         .find('p')
         .text();
 
-      results.push({
-        title,
-        url,
-        summary
-      });
+
+      //check for duplicates, filter out non-formatted articles
+
+      if(results.title !=='' && results.summary !==''){
+
+      
+      
+      if(titles.indexOf(results.title) === -1) {
+
+        titles.push(results.title);
+
+        Article.count({ title: results.title}, function (err, count) {
+          if (count === 0) {
+
+            const newArticle = new Article (results);
+    
+            newArticle.save(function (err, data) {
+              if (err) {
+                console.log(err);
+              } else {
+                console.log(res);
+              }
+            });
+          } else {
+            console.log('entry already exists in database');
+          }
+        })
+
+      }
+    }
     });
-    // db.scrapedData.insertMany(results);
-    console.log(results);
+    res.redirect('/articles');
+    // res.render('index')
+    // let hbsObject = {articles: data}
+    //   res.render('index', hbsObject);
   });
 });
+// console.log(results);
 
 router.get('/articles', function(req, res) {
   Article.find().sort({_id: -1})
-  .populate('comments')
-  .exec(function(err, doc) {
+  // .populate('comments')
+  .exec(function(err, data) {
     if (err) {
       console.log(err)
     } else {
-      let hbsObject = {articles: doc}
+      console.log(data);
+      let hbsObject = {articles: data}
       res.render('index', hbsObject);
     }
     
