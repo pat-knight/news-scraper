@@ -68,16 +68,13 @@ router.get("/scrape", function(req, res) {
     }
     });
     res.redirect('/articles');
-    // res.render('index')
-    // let hbsObject = {articles: data}
-    //   res.render('index', hbsObject);
   });
 });
-// console.log(results);
+
 
 router.get('/articles', function(req, res) {
   Article.find().sort({_id: -1})
-  // .populate('comments')
+  .populate('comments')
   .exec(function(err, data) {
     if (err) {
       console.log(err)
@@ -89,5 +86,65 @@ router.get('/articles', function(req, res) {
     
   })
 })
+
+router.post('/add/comment/:id', function (req, res){
+
+  console.log(req)
+  let articleId = req.params.id;
+  let commentUser = req.body.user;
+  let commentText = req.body.comment;
+
+  let result = {
+    user: commentUser,
+    content: commentText
+  };
+
+  let entry = new Comment (result);
+
+ 
+  entry.save(function(err, data) {
+    if (err) {
+      console.log(err);
+    } 
+    else {
+
+      Article.findOneAndUpdate({'_id': articleId}, {$push: {'comments':data._id}}, {new: true})
+
+      .exec(function(err, data){
+
+        if (err){
+          console.log(err);
+        } else {
+
+          res.sendStatus(200);
+        }
+      });
+      // res.redirect('/articles');
+    }
+  });
+
+});
+
+
+router.post('/remove/comment/:id', function (req, res){
+
+
+  let commentId = req.params.id;
+
+
+  Comment.findByIdAndRemove(commentId, function (err, res) {  
+    
+    if (err) {
+      console.log(err);
+    } 
+    else {
+      res.sendStatus(200);
+      // res.redirect('/articles');
+    }
+
+  });
+
+});
+
 
 module.exports = router;
