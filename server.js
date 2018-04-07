@@ -28,40 +28,8 @@ app.use(logger('dev'));
 app.use(express.static(path.join(__dirname, 'public/')));
 
 const routes = require('./routes/html');
-// const htmlRouter = require('./routes/html');
-// const apiRouter = require('./routes/api');
-
-// app.get('/', function(req, res) {
-//   res.render('index');
-// });
 
 app.use(routes);
-// app.use('/api', apiRouter);
-
-// app.get("/scrape", function(req, res) {
-//   request("https://www.theonion.com", function(error, response, html) {
-//     let $ = cheerio.load(html);
-
-//     let results = [];
-
-//     $("h1.headline").each((i, element) => {
-
-//       let title = $(element).text();
-
-//       let link = $(element)
-//         .children()
-//         .attr("href");
-
-//       results.push({
-//         title,
-//         link
-//       });
-//     });
-//     // db.scrapedData.insertMany(results);
-//     console.log(results);
-//   });
-// });
-
 
 app.listen(PORT, function() {
   console.log("App running on port " + PORT + "!");
